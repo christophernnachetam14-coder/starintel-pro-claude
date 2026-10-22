@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#070914">
+<title>STARINTEL PRO</title>
+<style>
+:root{--bg:#070914;--card:#0e1224;--card2:#141a33;--line:#222a4d;--tx:#e9ecff;--mut:#8f98c4;--pu:#8b5cf6;--cy:#22d3ee;--bad:#fb7185;--ok:#34d399}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1200px 500px at 10% -10%,#1b1450 0,transparent 60%),var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{display:flex;align-items:center;gap:10px;padding:14px 16px}
+.logo{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--pu),var(--cy));display:grid;place-items:center;font-weight:800;color:#06060f}
+header b{letter-spacing:.12em}header small{display:block;color:var(--mut);font-size:11px}
+nav{display:flex;gap:8px;overflow-x:auto;padding:4px 16px 12px;position:sticky;top:0;background:linear-gradient(var(--bg) 80%,transparent);z-index:5}
+nav button{flex:none;background:var(--card);color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:9px 15px;font-size:14px}
+nav button.on{color:#fff;border-color:var(--pu);background:linear-gradient(135deg,#4c2fb3,#0e7490)}
+main{max-width:880px;margin:0 auto;padding:0 16px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:0 0 14px}
+h2{margin:6px 0 4px;font-size:22px}h3{margin:0 0 8px;font-size:16px;color:var(--cy)}
+p.m,.m{color:var(--mut);font-size:14px}
+input,select,textarea{width:100%;background:var(--card2);color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;margin:4px 0 10px}
+label{font-size:13px;color:var(--mut)}
+.btn{background:linear-gradient(135deg,var(--pu),#6d28d9);color:#fff;border:0;border-radius:12px;padding:12px 18px;font:inherit;font-weight:600}
+.btn.s{background:var(--card2);border:1px solid var(--line);color:var(--tx);padding:8px 12px;font-size:14px}
+.btn.c{background:linear-gradient(135deg,var(--cy),#0891b2);color:#04121a}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.item{display:flex;gap:12px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:14px;margin-bottom:8px;background:var(--card2);cursor:pointer}
+.item img,.ph{width:56px;height:56px;border-radius:12px;object-fit:cover;flex:none;background:#1c2447;display:grid;place-items:center;color:var(--mut)}
+.item div{min-width:0}.item b{display:block}
+.hero{display:flex;gap:14px;align-items:flex-start}
+.hero img{width:110px;height:140px;object-fit:cover;border-radius:14px;flex:none}
+.chip{display:inline-block;background:#1b2147;border:1px solid var(--line);border-radius:999px;padding:5px 11px;margin:3px 4px 3px 0;font-size:13px;color:var(--tx)}
+a{color:var(--cy)}
+.note{border-left:3px solid var(--pu);background:#120f2c;padding:10px 12px;border-radius:8px;font-size:13px;color:var(--mut);margin:10px 0}
+.err{border-left-color:var(--bad)}
+.spin{width:22px;height:22px;border:3px solid var(--line);border-top-color:var(--cy);border-radius:50%;animation:r 1s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px}
+@keyframes r{to{transform:rotate(360deg)}}
+.hide{display:none}
+dl{margin:0;display:grid;grid-template-columns:110px 1fr;gap:6px 10px;font-size:14px}dt{color:var(--mut)}dd{margin:0}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#1b2147;border:1px solid var(--pu);padding:10px 16px;border-radius:12px;z-index:9;font-size:14px}
+</style></head><body>
+<header><div class="logo">S</div><div><b>STARINTEL PRO</b><small>Public celebrity &amp; audience research</small></div></header>
+<nav id="nav">
+<button data-v="search" class="on">Search</button><button data-v="discover">Discover</button><button data-v="saved">Saved</button><button data-v="audience">Audience &amp; Ads</button><button data-v="fans">Fan-page names</button><button data-v="notes">Notebook</button></nav>
+<main>
+<section id="v-search">
+<div class="card"><h2>Search any public figure</h2><p class="m">Searches Wikipedia live. Try “Luke Combs” or “Sam Heughan”.</p>
+<form id="sf" class="row" style="flex-wrap:nowrap"><input id="q" placeholder="Type a name…" autocomplete="off" style="margin:0"><button class="btn" type="submit">Search</button></form></div>
+<div id="sres"></div></section>
+
+<section id="v-profile" class="hide"><button class="btn s" id="back" style="margin-bottom:10px">← Back</button><div id="pbody"></div></section>
+
+<section id="v-discover" class="hide">
+<div class="card"><h2>Discover celebrities</h2>
+<p class="m">Pick a category and get plenty of choice. These are the public figures people viewed most on Wikipedia last month, with dead people removed.</p>
+<button class="btn c" id="disc">Show me celebrities</button>
+<div id="dchips" style="margin-top:12px"></div>
+<div class="note">Honest limits: this measures public interest, not tours or new releases. Live tour data needs paid or keyed services. Every profile has links to check official tour pages.</div></div>
+<div id="dres"></div></section>
+
+<section id="v-saved" class="hide"><div class="card"><h2>Saved profiles</h2><div id="slist"></div></div></section>
+
+<section id="v-audience" class="hide">
+<div class="card"><h2>Find Facebook ad interests</h2>
+<p class="m">Type a celebrity name. You get a list of related artists, shows and categories to test as interests in Meta Ads Manager.</p>
+<form id="a_form" class="row" style="flex-wrap:nowrap"><input id="a_name" placeholder="e.g. Luke Combs" autocomplete="off" style="margin:0"><button class="btn c" id="a_kw" type="submit">Find</button></form>
+<div class="note">Honest limit: these ideas come from Wikipedia, not from Meta. Meta decides which interests exist, so test each one in Ads Manager. Anything it doesn’t show can’t be used.</div></div>
+<div id="a_out"></div>
+<details class="card"><summary style="cursor:pointer;color:var(--cy)">Campaign worksheet (optional)</summary>
+<label>Audience / market</label><input id="a_mkt" placeholder="e.g. USA, 25–44">
+<label>Observed audience signals</label><textarea id="a_sig" rows="3"></textarea>
+<label>Source links</label><textarea id="a_src" rows="2"></textarea>
+<label>Campaign goal</label><select id="a_goal"><option>Promote an event or tour</option><option>Promote official music or video</option><option>Grow a disclosed fan community</option><option>Promote entertainment content</option></select>
+<label>Interest you are checking</label><input id="a_int">
+<label>Verification status</label><select id="a_ver"><option>Not yet checked in Ads Manager</option><option>Confirmed available in Ads Manager</option><option>Unavailable / not shown</option></select>
+<button class="btn" id="a_save">Save to notebook</button></details></section>
+
+<section id="v-fans" class="hide"><div class="card"><h2>Fan-page name ideas</h2>
+<p class="m">Names clearly say “fan” or “unofficial” so no one thinks the celebrity runs the page.</p>
+<input id="f_name" placeholder="Celebrity name"><button class="btn" id="f_go">Generate</button>
+<div id="f_out" style="margin-top:12px"></div>
+<div class="note">Tap a name to copy it. Always add “unofficial fan page” to the page description.</div></div></section>
+
+<section id="v-notes" class="hide"><div class="card"><h2>Research notebook</h2>
+<p class="m">Saved only in this browser on this device. It does not sync to other devices. Export a file to back it up.</p>
+<div class="row"><button class="btn s" id="n_exp">Export JSON</button><button class="btn s" id="n_imp">Import JSON</button><input type="file" id="n_file" accept=".json,application/json" class="hide"></div>
+<label style="display:block;margin-top:12px">Quick note</label><textarea id="n_txt" rows="3"></textarea><button class="btn" id="n_add">Add note</button></div>
+<div id="nlist"></div></section>
+</main>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function toast(t){var e=document.createElement("div");e.className="toast";e.textContent=t;document.body.appendChild(e);setTimeout(function(){e.remove()},2200)}
+var DB={saved:[],notes:[]};
+function load(){try{var d=JSON.parse(localStorage.getItem("starintel")||"null");if(d){DB.saved=d.saved||[];DB.notes=d.notes||[]}}catch(e){}}
+function save(){try{localStorage.setItem("starintel",JSON.stringify(DB));return true}catch(e){toast("Could not save (browser storage blocked)");return false}}
+load();
+var cur=null,lastView="search";
+function show(v){
+ ["search","profile","discover","saved","audience","fans","notes"].forEach(function(x){$("v-"+x).classList.toggle("hide",x!==v)});
+ document.querySelectorAll("#nav button").forEach(function(b){b.classList.toggle("on",b.dataset.v===v)});
+ if(v!=="profile")lastView=v;
+ if(v==="saved")renderSaved();if(v==="notes")renderNotes();
+ if(v==="audience"&&cur&&!$("a_name").value)$("a_name").value=cur.name;
+ window.scrollTo(0,0)}
+$("nav").addEventListener("click",function(e){var b=e.target.closest("button");if(b)show(b.dataset.v)});
+$("back").onclick=function(){show(lastView)};
+
+function get(url){
+ var c=new AbortController(),t=setTimeout(function(){c.abort()},12000);
+ return fetch(url,{signal:c.signal}).then(function(r){clearTimeout(t);if(!r.ok)throw new Error("Server replied "+r.status);return r.json()})
+ .catch(function(e){clearTimeout(t);throw new Error(e.name==="AbortError"?"The request took too long. Check your internet and try again.":(e.message==="Failed to fetch"?"Could not reach the data source. Check your internet connection.":e.message))})}
+function busy(el,t){el.innerHTML='<div class="card"><span class="spin"></span>'+esc(t)+'</div>'}
+function fail(el,m,retry){el.innerHTML='<div class="card note err">'+esc(m)+'</div>';if(retry){var b=document.createElement("button");b.className="btn s";b.textContent="Try again";b.onclick=retry;el.firstChild.appendChild(document.createElement("br"));el.firstChild.appendChild(b)}}
+
+var W="https://en.wikipedia.org/w/api.php?format=json&origin=*&";
+function item(p,extra){return '<div class="item" data-t="'+esc(p.title)+'">'+(p.thumb?'<img loading="lazy" alt="" src="'+esc(p.thumb)+'">':'<div class="ph">★</div>')+'<div><b>'+esc(p.title)+'</b><span class="m">'+esc(p.desc||"")+'</span>'+(extra||"")+'</div></div>'}
+function bindItems(el){el.querySelectorAll(".item").forEach(function(i){i.onclick=function(){openProfile(i.dataset.t)}})}
+
+function doSearch(){
+ var q=$("q").value.trim(),el=$("sres");if(!q){fail(el,"Please type a name first.");return}
+ busy(el,"Searching…");
+ get(W+"action=query&generator=search&gsrnamespace=0&gsrlimit=10&gsrsearch="+encodeURIComponent(q)+"&prop=pageimages|description&piprop=thumbnail&pithumbsize=160")
+ .then(function(d){
+  var pg=d.query?Object.keys(d.query.pages).map(function(k){return d.query.pages[k]}).sort(function(a,b){return a.index-b.index}):[];
+  if(!pg.length){el.innerHTML='<div class="card note">No results for “'+esc(q)+'”. Check the spelling or try fewer words.</div>';return}
+  el.innerHTML='<div class="card">'+pg.map(function(p){return item({title:p.title,desc:p.description,thumb:p.thumbnail&&p.thumbnail.source})}).join("")+'<div class="m">Source: Wikipedia. Tap a result to open it.</div></div>';
+  bindItems(el)}).catch(function(e){fail(el,e.message,doSearch)})}
+$("sf").addEventListener("submit",function(e){e.preventDefault();doSearch()});
+
+function labels(ids){
+ if(!ids.length)return Promise.resolve({});
+ return get("https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&origin=*&props=labels&languages=en&ids="+ids.join("|")).then(function(d){var m={};Object.keys(d.entities||{}).forEach(function(k){var l=d.entities[k].labels;if(l&&l.en)m[k]=l.en.value});return m})}
+function claim(c,p){return((c||{})[p]||[]).map(function(x){return x.mainsnak&&x.mainsnak.datavalue&&x.mainsnak.datavalue.value}).filter(Boolean)}
+function ids(c,p){return claim(c,p).map(function(v){return v.id}).filter(Boolean).slice(0,5)}
+
+function openProfile(title){
+ show("profile");var el=$("pbody");busy(el,"Loading profile…");
+ get("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(title.replace(/ /g,"_")))
+ .then(function(s){
+  var P={title:s.title,name:s.title,desc:s.description||"",extract:s.extract||"",thumb:s.thumbnail&&s.thumbnail.source,
+   url:s.content_urls&&s.content_urls.desktop.page,qid:s.wikibase_item,occ:[],nat:[],genre:[],site:"",social:[],born:""};
+  cur=P;render(P,true);
+  if(!P.qid)return;
+  return get("https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&origin=*&props=claims&ids="+P.qid).then(function(d){
+   var c=((d.entities||{})[P.qid]||{}).claims||{};
+   var oi=ids(c,"P106"),ni=ids(c,"P27"),gi=ids(c,"P136");
+   var w=claim(c,"P856")[0];if(w&&/^https?:\/\//.test(w))P.site=w;
+   var b=claim(c,"P569")[0];if(b&&b.time)P.born=b.time.replace(/^\+/,"").slice(0,10);
+   var S=[["P2003","Instagram","https://www.instagram.com/"],["P2002","X / Twitter","https://x.com/"],["P2013","Facebook","https://www.facebook.com/"],["P7085","TikTok","https://www.tiktok.com/@"],["P2397","YouTube","https://www.youtube.com/channel/"]];
+   S.forEach(function(s){var v=claim(c,s[0])[0];if(typeof v==="string"&&/^[\w.\-]+$/.test(v))P.social.push({n:s[1],u:s[2]+v})});
+   return labels(oi.concat(ni,gi)).then(function(m){
+    P.occ=oi.map(function(i){return m[i]}).filter(Boolean);P.nat=ni.map(function(i){return m[i]}).filter(Boolean);P.genre=gi.map(function(i){return m[i]}).filter(Boolean);
+    if(cur===P)render(P,false)})})
+ }).catch(function(e){fail(el,e.message,function(){openProfile(title)})})}
+
+function isSaved(t){return DB.saved.some(function(s){return s.title===t})}
+function render(P,loadingMore){
+ var q=encodeURIComponent(P.name);
+ var h='<div class="card"><div class="hero">'+(P.thumb?'<img alt="Photo of '+esc(P.name)+'" src="'+esc(P.thumb)+'">':'')+'<div><h2>'+esc(P.name)+'</h2><div class="m">'+esc(P.desc)+'</div><div class="row" style="margin-top:10px"><button class="btn" id="p_save">'+(isSaved(P.title)?"Saved ✓":"Save profile")+'</button><button class="btn s" id="p_aud">Audience research</button></div></div></div></div>';
+ h+='<div class="card"><h3>Biography</h3><p style="margin:0">'+esc(P.extract||"No biography available.")+'</p></div>';
+ h+='<div class="card"><h3>Facts '+(loadingMore?'<span class="spin"></span>':'')+'</h3><dl><dt>Occupation</dt><dd>'+esc(P.occ.join(", ")||"Not listed")+'</dd><dt>Nationality</dt><dd>'+esc(P.nat.join(", ")||"Not listed")+'</dd><dt>Genre</dt><dd>'+esc(P.genre.join(", ")||"Not listed")+'</dd><dt>Born</dt><dd>'+esc(P.born||"Not listed")+'</dd><dt>Website</dt><dd>'+(P.site?'<a target="_blank" rel="noopener" href="'+esc(P.site)+'">'+esc(P.site)+'</a>':"Not listed")+'</dd></dl>'
+ +'<div style="margin-top:10px"><span class="m">Social links (from Wikidata, please verify):</span><br>'+(P.social.length?P.social.map(function(s){return '<a class="chip" target="_blank" rel="noopener" href="'+esc(s.u)+'">'+esc(s.n)+'</a>'}).join(""):'<span class="m">None listed</span>')+'</div></div>';
+ h+='<div class="card"><h3>Tours &amp; news</h3><p class="m" style="margin-top:0">No live tour feed is built in, so nothing is guessed. Check these:</p>'
+ +[["Google: tour dates","https://www.google.com/search?q="+q+"+tour+dates"],["Google News","https://news.google.com/search?q="+q],["Ticketmaster search","https://www.ticketmaster.com/search?q="+q],["Bandsintown","https://www.bandsintown.com/search?q="+q]].map(function(l){return '<a class="chip" target="_blank" rel="noopener" href="'+l[1]+'">'+l[0]+'</a>'}).join("")+'</div>';
+ h+='<div class="card"><h3>Sources</h3>'+(P.url?'<a class="chip" target="_blank" rel="noopener" href="'+esc(P.url)+'">Wikipedia</a>':"")+(P.qid?'<a class="chip" target="_blank" rel="noopener" href="https://www.wikidata.org/wiki/'+esc(P.qid)+'">Wikidata</a>':"")+'<div class="m">Wikipedia can contain errors. Verify important facts with official sources.</div></div>';
+ $("pbody").innerHTML=h;
+ $("p_save").onclick=function(){if(isSaved(P.title)){toast("Already saved");return}DB.saved.push({title:P.title,name:P.name,desc:P.desc,thumb:P.thumb||"",url:P.url||"",date:new Date().toISOString()});if(save()){toast("Profile saved");render(P,false)}};
+ $("p_aud").onclick=function(){$("a_name").value=P.name;show("audience")}}
+
+function renderSaved(){
+ var el=$("slist");if(!DB.saved.length){el.innerHTML='<p class="m">Nothing saved yet. Open a profile and tap Save.</p>';return}
+ el.innerHTML=DB.saved.map(function(p,i){return item({title:p.title,desc:p.desc,thumb:p.thumb},'<button class="btn s" data-d="'+i+'" style="margin-top:6px">Remove</button>')}).join("");
+ bindItems(el);el.querySelectorAll("[data-d]").forEach(function(b){b.onclick=function(e){e.stopPropagation();DB.saved.splice(+b.dataset.d,1);save();renderSaved()}})}
+
+var PEOPLE=/singer|actor|actress|rapper|musician|songwriter|comedian|model\b|disc jockey|\bDJ\b|television personality|influencer|youtuber|streamer|presenter|entertainer|producer|director|athlete|footballer|basketball|boxer|wrestler|band|guitarist|drummer|pianist|dancer|chef|golfer|tennis|baseball|quarterback|racing driver|player/i;
+function pad(n){return n<10?"0"+n:""+n}
+var DEAD=/\d{4}\s*[–\-]\s*\d{4}/;
+var CATS=[["all","All",null],["country","Country",/country/i],["pop","Pop & rock",/\bpop\b|rock|singer|musician|songwriter|band\b|vocalist|guitarist/i],["hip","Hip-hop & R&B",/rapper|hip hop|hip-hop|R&B/i],["act","Actors",/actor|actress/i],["com","Comedians",/comedian|comedy/i],["asia","K-pop & Asia",/Korean|K-pop|Japanese|Thai|Chinese|Indian|Filipino/i],["sport","Sports",/footballer|basketball|boxer|wrestler|athlete|golfer|tennis|racing driver|baseball|quarterback/i]];
+var D={items:null,period:"",cat:"all"};
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function topMonth(back){
+ var d=new Date();d.setUTCDate(1);d.setUTCMonth(d.getUTCMonth()-back);
+ var u="https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/"+d.getUTCFullYear()+"/"+pad(d.getUTCMonth()+1)+"/all-days";
+ return get(u).then(function(r){return{period:d.toLocaleString("en",{month:"long",year:"numeric",timeZone:"UTC"}),arts:r.items[0].articles}}).catch(function(e){if(back<3)return topMonth(back+1);throw e})}
+function loadD(){
+ var el=$("dres");busy(el,"Loading last month’s most-viewed public figures… this can take a few seconds.");
+ topMonth(1).then(function(t){
+  var arts=t.arts.filter(function(a){return !/^(Main_Page|Special:|Wikipedia:|Portal:|Help:|File:|Category:|Template:)/.test(a.article)});
+  var rank={},titles=[];arts.forEach(function(a,i){var n=a.article.replace(/_/g," ");rank[n]={r:i+1,v:a.views};titles.push(n)});
+  var chunks=[];for(var i=0;i<titles.length;i+=50)chunks.push(titles.slice(i,i+50));
+  return Promise.all(chunks.map(function(ch){return get(W+"action=query&prop=description|pageimages&piprop=thumbnail&pithumbsize=160&titles="+encodeURIComponent(ch.join("|"))).then(function(d){return d.query?Object.keys(d.query.pages).map(function(k){return d.query.pages[k]}):[]}).catch(function(){return[]})})).then(function(res){
+   var items=[];[].concat.apply([],res).forEach(function(p){var d=p.description||"";if(!d||!PEOPLE.test(d)||DEAD.test(d))return;var k=rank[p.title]||{r:9999,v:0};items.push({title:p.title,desc:d,thumb:p.thumbnail&&p.thumbnail.source,r:k.r,v:k.v})});
+   if(items.length<5)throw new Error("Not enough data came back. Please try again.");
+   D.items=items;D.period=t.period;renderD()})
+ }).catch(function(e){D.items=null;fail(el,e.message,loadD)})}
+function renderD(){
+ $("dchips").innerHTML=CATS.map(function(c){return '<button class="btn s" data-k="'+c[0]+'" style="margin:0 6px 6px 0'+(c[0]===D.cat?';border-color:var(--pu);color:#fff;background:#3b2a8f':'')+'">'+c[1]+'</button>'}).join("");
+ $("dchips").querySelectorAll("[data-k]").forEach(function(b){b.onclick=function(){D.cat=b.dataset.k;renderD()}});
+ var re=CATS.filter(function(c){return c[0]===D.cat})[0][2],list=D.items.filter(function(x){return !re||re.test(x.desc)}),el=$("dres");
+ if(!list.length){el.innerHTML='<div class="card note">No one in this category showed up in last month’s top list. Try another category or use Search.</div>';return}
+ var pick=shuffle(list).slice(0,12);
+ el.innerHTML='<div class="card"><h3>'+list.length+' public figures · '+esc(D.period)+'</h3>'+pick.map(function(x){return item({title:x.title,desc:x.desc,thumb:x.thumb},'<span class="m" style="display:block;font-size:12px">#'+x.r+' most viewed on English Wikipedia in '+esc(D.period)+(x.v?' · '+x.v.toLocaleString()+' views':'')+'</span>')}).join("")+'<button class="btn" id="d_more" style="margin-top:6px">Show 12 different ones</button></div>';
+ bindItems(el);$("d_more").onclick=renderD}
+function discover(){if(D.items)renderD();else loadD()}
+$("disc").onclick=discover;
+document.querySelector('#nav [data-v="discover"]').addEventListener("click",function(){if(!D.items&&!$("dres").innerHTML)loadD()});
+
+var ART=/singer|rapper|musician|songwriter|band|duo|guitarist|drummer|pianist|vocalist|disc jockey|\bDJ\b|group|actor|actress|comedian|presenter|television personality/i;
+var MEDIA=/television|series|reality|talent show|competition|festival|awards?|radio|channel|podcast|film|sitcom/i;
+var LABEL=/record label|record company|music publisher/i;
+function chips(arr){return arr.map(function(x){return '<span class="chip" role="button" style="cursor:pointer" data-c="'+esc(x)+'">'+esc(x)+'</span>'}).join("")}
+function group(t,arr,note){return arr.length?'<div class="card"><h3>'+t+'</h3>'+(note?'<p class="m" style="margin-top:0">'+note+'</p>':'')+chips(arr)+'</div>':""}
+function ideas(){
+ var n=$("a_name").value.trim(),o=$("a_out");if(!n){fail(o,"Type a celebrity name first.");return}
+ busy(o,"Finding ideas for “"+n+"”…");
+ get(W+"action=query&list=search&srlimit=1&srsearch="+encodeURIComponent(n)).then(function(r){
+  var h=r.query&&r.query.search[0];if(!h){o.innerHTML='<div class="card note">Couldn’t find “'+esc(n)+'”. Check the spelling.</div>';return}
+  var title=h.title;
+  return Promise.all([
+   get("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(title.replace(/ /g,"_"))),
+   get(W+"action=query&prop=links&pllimit=max&plnamespace=0&titles="+encodeURIComponent(title))
+  ]).then(function(rs){
+   var s0=rs[0],pg=rs[1].query.pages,k=Object.keys(pg)[0],links=(pg[k].links||[]).map(function(l){return l.title});
+   var genres=[],labs=[],chunks=[];
+   for(var i=0;i<links.length&&chunks.length<6;i+=50)chunks.push(links.slice(i,i+50));
+   var wd=s0.wikibase_item?get("https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&origin=*&props=claims&ids="+s0.wikibase_item).then(function(d){
+     var c=((d.entities||{})[s0.wikibase_item]||{}).claims||{};var x=ids(c,"P136").concat(ids(c,"P106"),ids(c,"P264"));
+     return labels(x).then(function(m){return x.map(function(i){return m[i]}).filter(Boolean)})}).catch(function(){return[]}):Promise.resolve([]);
+   return Promise.all([wd].concat(chunks.map(function(ch){
+     return get(W+"action=query&prop=description&titles="+encodeURIComponent(ch.join("|"))).then(function(d){return Object.keys(d.query.pages).map(function(q){return d.query.pages[q]})}).catch(function(){return[]})}))).then(function(all){
+    var base=all[0],pages=[].concat.apply([],all.slice(1)),A=[],M=[],L=[];
+    pages.forEach(function(p){var d=p.description||"";if(!d||p.title===title)return;
+     if(LABEL.test(d))L.push(p.title);else if(ART.test(d))A.push(p.title);else if(MEDIA.test(d)&&!/^\d{4}/.test(p.title))M.push(p.title)});
+    var seen={};base=base.filter(function(x){return!seen[x]&&(seen[x]=1)});
+    var all2=[title].concat(base,A.slice(0,12),M.slice(0,6));
+    o.innerHTML='<div class="card"><div class="m">Using: <b style="color:var(--tx)">'+esc(title)+'</b> — '+esc(s0.description||"")+'<br>Wrong person? Add more of the name and search again.</div></div>'
+     +group("Start here: the person and their category",[title].concat(base),"Search each one in Ads Manager.")
+     +group("Related artists & public figures",A.slice(0,20),"Fans of similar artists are a common audience to test.")
+     +group("Shows, festivals & media",M.slice(0,12))
+     +group("Record labels",L.slice(0,6))
+     +'<div class="card"><button class="btn s" id="a_copy">Copy the short list</button><div class="m" style="margin-top:8px">Tap any name above to copy it.</div></div>'
+     +'<div class="card"><h3>How to test them in Ads Manager</h3><div class="m">1. Open Meta Ads Manager, then Create.<br>2. At the audience step, tap <b>Detailed targeting</b>.<br>3. Paste a name. If it shows with an audience size, it’s a real interest.<br>4. If nothing shows, skip it.<br>5. Combine several real interests, and check the audience size is not tiny.</div></div>';
+    o.querySelectorAll("[data-c]").forEach(function(c){c.onclick=function(){copy(c.dataset.c)}});
+    $("a_copy").onclick=function(){copy(all2.join(", "))}})})
+ }).catch(function(e){fail(o,e.message,ideas)})}
+$("a_form").addEventListener("submit",function(e){e.preventDefault();ideas()});
+$("a_save").onclick=function(){
+ var n=$("a_name").value.trim();if(!n){toast("Enter a celebrity name");return}
+ DB.notes.unshift({type:"Audience / campaign",title:n,date:new Date().toISOString(),body:"Market: "+$("a_mkt").value+"\nSignals: "+$("a_sig").value+"\nSources: "+$("a_src").value+"\nGoal: "+$("a_goal").value+"\nInterest checked: "+$("a_int").value+"\nStatus: "+$("a_ver").value});
+ if(save()){toast("Saved to notebook");["a_mkt","a_sig","a_src","a_int"].forEach(function(i){$(i).value=""})}};
+
+function copy(t){if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){toast("Copied")},function(){toast(t)});else toast(t)}
+$("f_go").onclick=function(){
+ var n=$("f_name").value.trim(),o=$("f_out");if(!n){o.innerHTML='<div class="note err">Type a name first.</div>';return}
+ var t=[n+" Fans",n+" Fan Community",n+" Updates (Fan Page)",n+" Music Community",n+" Fan Club (Unofficial)","Fans of "+n,n+" Appreciation Club",n+" News & Fan Updates","Unofficial "+n+" Fan Page"];
+ o.innerHTML=t.map(function(x){return '<span class="chip" role="button" style="cursor:pointer" data-c="'+esc(x)+'">'+esc(x)+'</span>'}).join("");
+ o.querySelectorAll("[data-c]").forEach(function(c){c.onclick=function(){copy(c.dataset.c)}})};
+
+function renderNotes(){
+ var el=$("nlist");if(!DB.notes.length){el.innerHTML='<div class="card m">No notes yet.</div>';return}
+ el.innerHTML=DB.notes.map(function(n,i){return '<div class="card"><b>'+esc(n.title||n.type)+'</b> <span class="m">· '+esc(n.type)+' · '+esc((n.date||"").slice(0,10))+'</span><div style="white-space:pre-wrap;margin:8px 0;font-size:14px">'+esc(n.body)+'</div><button class="btn s" data-d="'+i+'">Delete</button></div>'}).join("");
+ el.querySelectorAll("[data-d]").forEach(function(b){b.onclick=function(){DB.notes.splice(+b.dataset.d,1);save();renderNotes()}})}
+$("n_add").onclick=function(){var t=$("n_txt").value.trim();if(!t){toast("Write something first");return}DB.notes.unshift({type:"Note",title:"Note",date:new Date().toISOString(),body:t});if(save()){$("n_txt").value="";renderNotes()}};
+$("n_exp").onclick=function(){var b=new Blob([JSON.stringify(DB,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="starintel-research.json";document.body.appendChild(a);a.click();a.remove();toast("Export started")};
+$("n_imp").onclick=function(){$("n_file").click()};
+$("n_file").onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(Array.isArray(d.saved))DB.saved=d.saved;if(Array.isArray(d.notes))DB.notes=d.notes;save();renderNotes();toast("Imported")}catch(x){toast("That file is not valid")}};r.readAsText(f)};
+})();
+</script></body></html>
